@@ -186,19 +186,18 @@ class SessionManager {
                     },
                 ],
             });
+            for (const fileHandle of arrFileHandle) {
+                const fileData = await fileHandle.getFile();
+                const buffer = await fileData.arrayBuffer();
+                const str = new TextDecoder().decode(buffer);
+                const obj = JSON.parse(str);
+                await chrome.storage.local.set(obj);
+            }
+            alertSuccess("导入成功!");
         } catch (error) {
             alertError("导入失败!");
             return;
         }
-
-        for (const fileHandle of arrFileHandle) {
-            const fileData = await fileHandle.getFile();
-            const buffer = await fileData.arrayBuffer();
-            const str = new TextDecoder().decode(buffer);
-            const obj = JSON.parse(str);
-            await chrome.storage.local.set(obj);
-        }
-        alertSuccess("导入成功!");
     }
     async export() {
         const element = document.createElement("a");
