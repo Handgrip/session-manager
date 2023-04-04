@@ -32,7 +32,9 @@ body {
   cursor: pointer;
 }
 
-.clear {
+.clear,
+.export,
+.import {
   font-size: 12px;
   font-weight: normal;
   color: blue;
@@ -40,7 +42,9 @@ body {
   margin-right: 12px;
 }
 
-.clear:hover {
+.clear:hover,
+.export:hover,
+.import:hover {
   cursor: pointer;
 }
 

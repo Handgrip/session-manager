@@ -167,34 +167,84 @@ class SessionManager {
      * 保存storageObject到storage
      */
     async storage() {
-        const obj = {};
-        obj[this.domain] = this.storageObject;
-        await chrome.storage.local.set(obj);
+        if (Object.keys(this.storageObject).length) {
+            const obj = {};
+            obj[this.domain] = this.storageObject;
+            await chrome.storage.local.set(obj);
+        } else {
+            await chrome.storage.local.remove(this.domain);
+        }
+    }
+    async import() {
+        try {
+            const arrFileHandle = await window.showOpenFilePicker({
+                types: [
+                    {
+                        accept: {
+                            "application/json": [".json"],
+                        },
+                    },
+                ],
+            });
+        } catch (error) {
+            alertError("导入失败!");
+            return;
+        }
+
+        for (const fileHandle of arrFileHandle) {
+            const fileData = await fileHandle.getFile();
+            const buffer = await fileData.arrayBuffer();
+            const str = new TextDecoder().decode(buffer);
+            const obj = JSON.parse(str);
+            await chrome.storage.local.set(obj);
+        }
+        alertSuccess("导入成功!");
+    }
+    async export() {
+        const element = document.createElement("a");
+        element.setAttribute(
+            "href",
+            "data:text/plain;charset=utf-8," +
+                encodeURIComponent(
+                    JSON.stringify(await chrome.storage.local.get(null))
+                )
+        );
+        element.setAttribute("download", "session.json");
+        element.style.display = "none";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
     }
 }
 $(function () {
     let sessionManager = new SessionManager();
     sessionManager.loadAll();
-    ["remove", "save", "use", "update", "clear"].map(function (className) {
-        $(document).on("click", "." + className, function () {
-            if (className === "clear") {
-                sessionManager.clear();
-            } else {
-                let name =
-                    className === "save"
-                        ? $(this).siblings("input").val()
-                        : $(this).siblings("span").html();
-                if (!name) {
-                    alertError("非法操作");
+    ["remove", "save", "use", "update", "clear", "export", "import"].map(
+        (className) => {
+            $(document).on("click", "." + className, function () {
+                if (className === "clear") {
+                    sessionManager.clear();
+                } else if (className === "export") {
+                    sessionManager.export();
+                } else if (className === "import") {
+                    sessionManager.import();
                 } else {
-                    sessionManager.setName(name);
-                    if (typeof sessionManager[className] === "function") {
-                        sessionManager[className]();
+                    let name =
+                        className === "save"
+                            ? $(this).siblings("input").val()
+                            : $(this).siblings("span").html();
+                    if (!name) {
+                        alertError("非法操作");
+                    } else {
+                        sessionManager.setName(name);
+                        if (typeof sessionManager[className] === "function") {
+                            sessionManager[className]();
+                        }
                     }
                 }
-            }
-        });
-    });
+            });
+        }
+    );
 });
 /**
  * 添加一行
