@@ -1,0 +1,26 @@
+{
+	"manifest_version": 3,
+	"action": {
+		"default_title": "session manager",
+		"default_popup": "popup.html"
+	},
+	"description": "session manager",
+	"icons": {
+		"16": "logo/icon-16x16.png",
+		"32": "logo/icon-32x32.png",
+		"48": "logo/icon-48x48.png",
+		"128": "logo/icon-128x128.png"
+	},
+	"name": "session manager",
+	"short_name": "session manager",
+	"host_permissions": [
+		"http://*/*",
+		"https://*/*"
+	],
+	"permissions": [
+		"cookies",
+		"storage",
+		"tabs"
+	],
+	"version": "1.1"
+}
